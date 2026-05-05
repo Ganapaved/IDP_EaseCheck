@@ -1,0 +1,10 @@
+easyocr==1.7.2
+fastapi==0.136.1
+neo4j==6.1.0
+networkx==3.4.2
+numpy==2.4.4
+ollama==0.6.2
+opencv_python_headless==4.13.0.92
+protobuf==7.34.1
+python-dotenv==1.2.2
+sentence_transformers==3.3.1
