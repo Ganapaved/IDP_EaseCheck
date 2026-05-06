@@ -151,6 +151,7 @@ def extract_from_page(
  
     result["combined_text"] = "\n\n".join(parts)
     result["content_type"]  = ctype   # may be overridden if both present
+    result['has_diagram'] = detection['has_diagram']
  
     print(f"  [Extract] Done. type={ctype}  "
           f"combined_text_len={len(result['combined_text'])}")
@@ -489,4 +490,11 @@ def _dfa_json_to_text(dfa: dict) -> str:
 
 # RUN
 if __name__ == "__main__":
-    dfa = extract_dfa("dfg.jpeg", "dfa_final_output.png")
+    import sys
+    img_path =  "schema.jpg"
+ 
+    result = extract_from_page(img_path)
+    print(f"\nDetected type   : {result['content_type']}")
+    print(f"Text content    : {result['text_content']}")
+    print(f"DFA JSON present: {result['dfa_json'] is not None}")
+    print(f"Combined text   :\n{result['combined_text']}")

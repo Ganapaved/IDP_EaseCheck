@@ -41,9 +41,13 @@ NEO4J_URI      = os.getenv("NEO4J_URI",      "bolt://localhost:7687")
 NEO4J_USER     = os.getenv("NEO4J_USER",     "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")        # set via env var
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")        # set via env var
+GEMINI_API_KEY2 = os.getenv("GEMINI_API_KEY2", "")
+
+API_KEYS = [k for k in [GEMINI_API_KEY, GEMINI_API_KEY2] if k]
+current_key_idx = 0
 
 # Free-tier model — do NOT change to gemini-2.5-pro (quota exhausted instantly)
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3-flash-preview"
 
 # The two separate Neo4j databases
 DB_SCHEMA  = "ischema"
@@ -133,19 +137,21 @@ class Neo4jConn:
 #  GEMINI — new google.genai SDK with retry
 # ══════════════════════════════════════════════════════════
 
-def get_gemini_client() -> genai.Client:
-    if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY env var is not set.")
-    return genai.Client(api_key=GEMINI_API_KEY)
+# def get_gemini_client() -> genai.Client:
+#     if not API_KEYS:
+#         raise ValueError("GEMINI_API_KEY env var is not set.")
+#     return genai.Client(api_key=API_KEYS[0])
 
 
 def call_gemini(
-    client: genai.Client,
     prompt: str,
     image_path: str | None = None,
     max_retries: int = 4,
 ) -> str:
     """Call Gemini with exponential backoff on 429 quota errors."""
+    global current_key_idx
+    if not API_KEYS:
+        raise ValueError("No GEMINI_API_KEYS found in environment.")
     contents = []
 
     if image_path and Path(image_path).exists():
@@ -156,6 +162,11 @@ def call_gemini(
     contents.append(prompt)
 
     for attempt in range(max_retries):
+        if not API_KEYS:
+            raise ValueError("No Gemini API keys are set in environment variables.")
+
+        api_key = API_KEYS[current_key_idx]
+        client = genai.Client(api_key=api_key)
         try:
             response = client.models.generate_content(
                 model=GEMINI_MODEL,
@@ -164,14 +175,33 @@ def call_gemini(
             return response.text.strip()
 
         except Exception as e:
-            msg = str(e)
-            if "429" in msg or "quota" in msg.lower() or "ResourceExhausted" in msg:
-                wait = (2 ** attempt) * 5      # 5s → 10s → 20s → 40s
-                print(f"  [Gemini] Rate limited. Retrying in {wait}s "
-                      f"(attempt {attempt + 1}/{max_retries})...")
-                time.sleep(wait)
+            status_code = getattr(e, 'status_code', None)
+            error_msg = str(e).lower()
+            
+            is_retryable = (
+                status_code in [429, 503] or 
+                "quota" in error_msg or 
+                "limit" in error_msg or 
+                "unavailable" in error_msg or
+                "high demand" in error_msg
+            )
+
+            if is_retryable:
+                # Rotate to next key immediately
+                prev_idx = current_key_idx
+                current_key_idx = (current_key_idx + 1) % len(API_KEYS)
+                
+                # If we've looped back to the first key, wait longer
+                base_wait = 10 if current_key_idx == 0 else 2
+                wait_time = (2 ** attempt) * base_wait
+                
+                print(f"  [Gemini] Attempt {attempt+1} failed (Status: {status_code}). "
+                      f"Key {prev_idx} -> {current_key_idx}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
             else:
-                raise   # non-quota error, fail immediately
+                # If it's a structural error (invalid prompt, etc), don't retry
+                print(f"  [Gemini] Critical non-retryable error: {e}")
+                raise
 
     raise RuntimeError("Gemini failed after max retries due to rate limiting.")
 
@@ -229,10 +259,9 @@ _EXTRA = {
 
 
 def extract_triples(
-    client: genai.Client,
     text: str,
     image_path: str | None = None,
-    content_type:str='text'
+    content_type:str|None = None
 ) -> dict:
     extra = _EXTRA.get(content_type, _EXTRA["text"])
     prompt = PROMPT_BASE.format(
@@ -241,7 +270,7 @@ def extract_triples(
         content=text or "(no text — analyse the image)",
     )
     print(f"  [Gemini] Extracting triples (content_type={content_type})...")
-    raw = call_gemini(client, prompt, image_path)
+    raw = call_gemini(prompt, image_path)
 
     cleaned = re.sub(r"```(?:json)?|```", "", raw).strip()
     try:
@@ -439,59 +468,59 @@ RETURN s.label AS missing, labels(s) AS type""")
 #  MAIN PIPELINE
 # ══════════════════════════════════════════════════════════
 
-def run_pipeline(
-    schema_text:    str,
-    student_text:   str,
-    image_path:     str | None = None,
-    question_id:    str | None = None,
-    clear_existing: bool = True,
-) -> dict:
-    qid = question_id or f"q_{uuid.uuid4().hex[:8]}"
+# def run_pipeline(
+#     schema_text:    str,
+#     student_text:   str,
+#     image_path:     str | None = None,
+#     question_id:    str | None = None,
+#     clear_existing: bool = True,
+# ) -> dict:
+#     qid = question_id or f"q_{uuid.uuid4().hex[:8]}"
 
-    print(f"\n{'='*55}")
-    print(f"  TOC KG PIPELINE  |  question = {qid}")
-    print(f"  Schema DB  → {DB_SCHEMA}")
-    print(f"  Student DB → {DB_STUDENT}")
-    print(f"{'='*55}")
+#     print(f"\n{'='*55}")
+#     print(f"  TOC KG PIPELINE  |  question = {qid}")
+#     print(f"  Schema DB  → {DB_SCHEMA}")
+#     print(f"  Student DB → {DB_STUDENT}")
+#     print(f"{'='*55}")
 
-    neo4j  = Neo4jConn()
-    client = get_gemini_client()
+#     neo4j  = Neo4jConn()
+#     # client = get_gemini_client()
 
-    if clear_existing:
-        neo4j.clear_question(DB_SCHEMA,  qid)
-        neo4j.clear_question(DB_STUDENT, qid)
-        print(f"  Cleared existing data for question '{qid}'")
+#     if clear_existing:
+#         neo4j.clear_question(DB_SCHEMA,  qid)
+#         neo4j.clear_question(DB_STUDENT, qid)
+#         print(f"  Cleared existing data for question '{qid}'")
 
-    # ── Schema → ischema ──────────────────────────────────────────────────────
-    print(f"\n[1] Extracting schema KG → {DB_SCHEMA}...")
-    schema_data = extract_triples(client, schema_text)
-    topic = push_kg(neo4j, schema_data, DB_SCHEMA, qid)
-    print(f"  Topic detected: {topic}")
+#     # ── Schema → ischema ──────────────────────────────────────────────────────
+#     print(f"\n[1] Extracting schema KG → {DB_SCHEMA}...")
+#     schema_data = extract_triples(client, schema_text)
+#     topic = push_kg(neo4j, schema_data, DB_SCHEMA, qid)
+#     print(f"  Topic detected: {topic}")
 
-    # ── Student → istudent ────────────────────────────────────────────────────
-    print(f"\n[2] Extracting student KG → {DB_STUDENT}...")
-    student_data = extract_triples(client, student_text, image_path)
-    push_kg(neo4j, student_data, DB_STUDENT, qid)
+#     # ── Student → istudent ────────────────────────────────────────────────────
+#     print(f"\n[2] Extracting student KG → {DB_STUDENT}...")
+#     student_data = extract_triples(client, student_text, image_path)
+#     push_kg(neo4j, student_data, DB_STUDENT, qid)
 
-    # ── Database summaries ────────────────────────────────────────────────────
-    print("\n[3] Database summaries:")
-    neo4j.summary(DB_SCHEMA)
-    neo4j.summary(DB_STUDENT)
+#     # ── Database summaries ────────────────────────────────────────────────────
+#     print("\n[3] Database summaries:")
+#     neo4j.summary(DB_SCHEMA)
+#     neo4j.summary(DB_STUDENT)
 
-    # ── Evaluate ──────────────────────────────────────────────────────────────
-    print("\n[4] Evaluating...")
-    report = evaluate(neo4j, qid)
+#     # ── Evaluate ──────────────────────────────────────────────────────────────
+#     print("\n[4] Evaluating...")
+#     report = evaluate(neo4j, qid)
 
-    print(f"\n  Final score   : {report['final_score']} / 100")
-    print(f"  Node score    : {report['node_score']}")
-    print(f"  Relation score: {report['relation_score']}")
-    print("\n  Feedback:")
-    for msg in report["feedback"]:
-        print(f"    • {msg}")
+#     print(f"\n  Final score   : {report['final_score']} / 100")
+#     print(f"  Node score    : {report['node_score']}")
+#     print(f"  Relation score: {report['relation_score']}")
+#     print("\n  Feedback:")
+#     for msg in report["feedback"]:
+#         print(f"    • {msg}")
 
-    print_browser_queries(qid)
-    neo4j.close()
-    return report
+#     print_browser_queries(qid)
+#     neo4j.close()
+#     return report
 
 
 # ══════════════════════════════════════════════════════════
@@ -520,8 +549,8 @@ if __name__ == "__main__":
     q2 on 0->q2, on 1->q5. q5 on 0->q2, on 1->q2.
     """
 
-    report = run_pipeline(
-        schema_text  = dfa_schema,
-        student_text = dfa_student,
-        question_id  = "q1_dfa",
-    )
+    # report = run_pipeline(
+    #     schema_text  = dfa_schema,
+    #     student_text = dfa_student,
+    #     question_id  = "q1_dfa",
+    # )

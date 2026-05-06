@@ -32,7 +32,7 @@ NEO4J_URI      = os.getenv("NEO4J_URI",      "bolt://localhost:7687")
 NEO4J_USER     = os.getenv("NEO4J_USER",     "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL   = "gemini-2.5-flash"
+GEMINI_MODEL   = "gemini-3-flash-preview"
 
 DB_SCHEMA  = "ischema"
 DB_STUDENT = "istudent"
@@ -132,6 +132,16 @@ class Neo4jConn:
                        pred=e["pred"],
                        label=e["pred"])
         return G
+    
+    def get_content_type(self, database: str, question_id: str) -> str:
+        """Retrieve the content_type stored on the Answer node."""
+        rows = self.run("""
+            MATCH (n:Answer {question_id: $q})
+            RETURN n.content_type AS ct
+        """, database=database, q=question_id)
+        if rows and rows[0]["ct"]:
+            return rows[0]["ct"]
+        return "text"   # safe defaul
 
 
 # ══════════════════════════════════════════════════════════
@@ -467,13 +477,22 @@ def combine_scores(
     l2: dict,
     l3: dict,
     l4: dict,
-    question_type: str = "diagram+text",
+    question_type: str |None = None,
+    schema_edge_count:int = 999
 ) -> dict:
     """
     Combines all four layer scores with question-type-specific weights.
     Produces a final 0-100 score and unified feedback.
     """
     w1, w2, w3, w4 = WEIGHTS.get(question_type, WEIGHTS["diagram+text"])
+
+    if schema_edge_count < 3:
+        shift = w3 * 0.6
+        w3   -= shift
+        w4   += shift * 0.7
+        w2   += shift * 0.3
+        total = w1 + w2 + w3 + w4
+        w1, w2, w3, w4 = w1/total, w2/total, w3/total, w4/total
 
     final = (w1 * l1["score"] +
              w2 * l2["score"] +
