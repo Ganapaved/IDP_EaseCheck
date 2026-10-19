@@ -1,0 +1,67 @@
+.upload-form {
+  width: 100%;
+}
+
+.file-input-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.file-input-label {
+  display: block;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border: 2px dashed #bdc3c7;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  color: #7f8c8d;
+  transition: all 0.3s ease;
+}
+
+.file-input-wrapper input[type="file"]:hover + .file-input-label {
+  border-color: #3498db;
+  background: #eef7fc;
+  color: #3498db;
+}
+
+.file-input-wrapper input[type="file"]:disabled + .file-input-label {
+  background: #ecf0f1;
+  color: #95a5a6;
+  cursor: not-allowed;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 120px;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+@media (max-width: 768px) {
+  .upload-form .form-card {
+    padding: 1.5rem;
+  }
+}

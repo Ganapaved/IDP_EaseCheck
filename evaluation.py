@@ -1,15 +1,10 @@
 """
-TOC Knowledge Graph — 4-Layer Evaluation Pipeline
-══════════════════════════════════════════════════
 Layer 1 : Exact match          (Jaccard on nodes + triples)
 Layer 2 : Semantic similarity  (sentence-transformer embeddings)
 Layer 3 : Graph structure      (WL kernel + Graph Edit Distance)
 Layer 4 : LLM-as-judge         (Gemini reasons over both KGs)
 
-Final score = weighted combination, weights shift by question_type.
-
-Install:
-    pip install google-genai neo4j sentence-transformers networkx numpy
+Final score = weighted combination, weights shift by question_type.py
 """
 
 import os, json, re, time
@@ -24,9 +19,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# ══════════════════════════════════════════════════════════
-#  CONFIG
-# ══════════════════════════════════════════════════════════
 
 NEO4J_URI      = os.getenv("NEO4J_URI",      "bolt://localhost:7687")
 NEO4J_USER     = os.getenv("NEO4J_USER",     "neo4j")
@@ -37,8 +29,7 @@ GEMINI_MODEL   = "gemini-3-flash-preview"
 DB_SCHEMA  = "ischema"
 DB_STUDENT = "istudent"
 
-# ── Question-type weight presets ─────────────────────────────────────────────
-# Each tuple: (exact, semantic, graph_structure, llm_judge)
+
 WEIGHTS = {
     "diagram":      (0.25, 0.15, 0.35, 0.25),
     "text":         (0.10, 0.35, 0.15, 0.40),
@@ -48,9 +39,7 @@ WEIGHTS = {
 _embedder = None   # lazy-loaded once
 
 
-# ══════════════════════════════════════════════════════════
-#  SHARED HELPERS
-# ══════════════════════════════════════════════════════════
+
 
 def get_embedder() -> SentenceTransformer:
     global _embedder
@@ -81,9 +70,6 @@ def call_gemini(client: genai.Client, prompt: str, max_retries: int = 4) -> str:
     raise RuntimeError("Gemini failed after max retries")
 
 
-# ══════════════════════════════════════════════════════════
-#  NEO4J — FETCH KG DATA
-# ══════════════════════════════════════════════════════════
 
 class Neo4jConn:
     def __init__(self):
@@ -144,9 +130,7 @@ class Neo4jConn:
         return "text"   # safe defaul
 
 
-# ══════════════════════════════════════════════════════════
-#  LAYER 1 — EXACT MATCH
-# ══════════════════════════════════════════════════════════
+
 
 def layer1_exact_match(
     schema_nodes: list[dict],
@@ -185,9 +169,7 @@ def layer1_exact_match(
     }
 
 
-# ══════════════════════════════════════════════════════════
-#  LAYER 2 — SEMANTIC SIMILARITY
-# ══════════════════════════════════════════════════════════
+
 
 def layer2_semantic(
     schema_nodes: list[dict],
@@ -242,9 +224,7 @@ def layer2_semantic(
     }
 
 
-# ══════════════════════════════════════════════════════════
-#  LAYER 3 — GRAPH STRUCTURE
-# ══════════════════════════════════════════════════════════
+
 
 def _wl_hash(G: nx.DiGraph, iterations: int = 3) -> dict[str, str]:
     """
@@ -371,9 +351,7 @@ def layer3_graph_structure(
     }
 
 
-# ══════════════════════════════════════════════════════════
-#  LAYER 4 — LLM-AS-JUDGE
-# ══════════════════════════════════════════════════════════
+
 
 LLM_JUDGE_PROMPT = """
 You are an expert examiner for Theory of Computation (TOC) courses.
@@ -468,9 +446,7 @@ def layer4_llm_judge(
                 "dimensions": {}, "overall_feedback": "LLM judge unavailable"}
 
 
-# ══════════════════════════════════════════════════════════
-#  FINAL WEIGHTED COMBINER
-# ══════════════════════════════════════════════════════════
+
 
 def combine_scores(
     l1: dict,
@@ -557,9 +533,7 @@ def combine_scores(
     }
 
 
-# ══════════════════════════════════════════════════════════
-#  MAIN EVALUATION ENTRY POINT
-# ══════════════════════════════════════════════════════════
+
 
 def evaluate(
     question_id:   str,
@@ -629,7 +603,7 @@ def evaluate(
                               student_nodes, student_edges)
         print(f"  Score: {l4['score']}")
 
-    # ── Combine ───────────────────────────────────────────────────────────────
+   
     print("\n[Final] Combining scores...")
     report = combine_scores(l1, l2, l3, l4, question_type)
 
@@ -638,7 +612,7 @@ def evaluate(
 
     neo4j.close()
 
-    # ── Print summary ─────────────────────────────────────────────────────────
+    # ── Print summary ───────────
     print(f"\n{'='*55}")
     print(f"  RESULT")
     print(f"{'='*55}")
@@ -665,9 +639,6 @@ def evaluate(
     return report
 
 
-# ══════════════════════════════════════════════════════════
-#  EXAMPLE USAGE
-# ══════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
 

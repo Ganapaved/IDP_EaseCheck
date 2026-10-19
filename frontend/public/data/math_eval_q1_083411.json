@@ -1,0 +1,158 @@
+{
+  "final_score": 54.16,
+  "content_type": "derivation",
+  "weights": {
+    "formula_exact": 0.15,
+    "symbolic": 0.25,
+    "step_order": 0.3,
+    "llm_judge": 0.3
+  },
+  "layer_scores": {
+    "formula_exact": 23.81,
+    "symbolic": 33.33,
+    "step_order": 40.84,
+    "llm_judge": 100.0
+  },
+  "layer_details": {
+    "formula_exact": {
+      "score": 23.81,
+      "jaccard": 0.1667,
+      "recall": 0.3,
+      "precision": 0.2727,
+      "f1": 0.2857,
+      "matched_count": 3,
+      "schema_count": 10,
+      "student_count": 11,
+      "missing_formulas": [
+        "\\int_{0}^{\\pi/2} \\frac{\\sin^{4} x}{\\sin^{4} x + \\cos^{4} x} dx",
+        "\\Rightarrow \\int_{0}^{\\pi/2} \\frac{\\cos^{4} x}{\\sin^{4} x + \\cos^{4} x} dx",
+        "I = \\int_{0}^{\\pi/2} \\frac{\\cos^{4} x}{\\cos^{4} x + \\sin^{4} x} dx",
+        "= \\int_{0}^{\\pi/2} \\frac{\\sin^{4} (\\frac{\\pi}{2} - x)}{\\sin^{4} (\\frac{\\pi}{2} - x) + \\cos^{4} (\\frac{\\pi}{2} - x)} dx",
+        "\\int_{0}^{a} f(x) = \\int_{0}^{a} f(a - x)",
+        "\\int_{0}^{\\pi/2} \\frac{\\sin^{4} (\\frac{\\pi}{2} - x)}{\\sin^{4} (\\frac{\\pi}{2} - x) + \\cos^{4} (\\frac{\\pi}{2} - x)} dx"
+      ],
+      "extra_formulas": [
+        "\\int_{0}^{\\pi/2} \\frac{\\sin^4 x}{\\sin^4 x + \\cos^4 x} dx",
+        "\\int_{0}^{\\pi/2} \\frac{\\sin^4 x}{\\sin^4 x + \\cos^4 x} dx \\dots(i)",
+        "I = \\int_{0}^{\\pi/2} \\frac{\\cos^4 x}{\\cos^4 x + \\sin^4 x} dx",
+        "2I = \\int_{0}^{\\pi/2} \\frac{\\cos^4 x + \\sin^4 x}{\\sin^4 x + \\cos^4 x} dx"
+      ]
+    },
+    "symbolic": {
+      "score": 33.33,
+      "matched_count": 5,
+      "schema_count": 15,
+      "equivalent_pairs": [
+        [
+          "[\\because \\int_{0}^{a} f(x) = \\int_{0}^{a} f(a - x",
+          "[\\because \\int_{0}^{a} f(x) = \\int_{0}^{a} f(a - x"
+        ],
+        [
+          "2I = \\int_{0}^{\\pi/2} dx = [x]_{0}^{\\pi/2} = \\left",
+          "2I = \\int_{0}^{\\pi/2} dx = [x]_{0}^{\\pi/2} = [\\fra"
+        ],
+        [
+          "2I = \\frac{\\pi}{2} \\Rightarrow I = \\frac{\\pi}{4}",
+          "2I = \\frac{\\pi}{2} \\Rightarrow I = \\frac{\\pi}{4}"
+        ],
+        [
+          "2I = \\int_{0}^{\\pi/2} dx = [x]_{0}^{\\pi/2} = \\left",
+          "2I = \\int_{0}^{\\pi/2} dx = [x]_{0}^{\\pi/2} = [\\fra"
+        ],
+        [
+          "2I = \\frac{\\pi}{2} \\Rightarrow I = \\frac{\\pi}{4}",
+          "2I = \\frac{\\pi}{2} \\Rightarrow I = \\frac{\\pi}{4}"
+        ]
+      ],
+      "unmatched_formulas": [
+        "\\int_{0}^{\\pi/2} \\frac{\\sin^{4} x}{\\sin^{4} x + \\cos^{4} x} dx",
+        "= \\int_{0}^{\\pi/2} \\frac{\\sin^{4} \\left(\\frac{\\pi}{2} - x\\right)}{\\sin^{4} \\left(\\frac{\\pi}{2} - x\\right) + \\cos^{4} \\left(\\frac{\\pi}{2} - x\\right)} dx",
+        "I = \\int_{0}^{\\pi/2} \\frac{\\cos^{4} x}{\\cos^{4} x + \\sin^{4} x} dx",
+        "\\Rightarrow \\int_{0}^{\\pi/2} \\frac{\\cos^{4} x}{\\sin^{4} x + \\cos^{4} x} dx",
+        "2I = \\int_{0}^{\\pi/2} \\frac{\\cos^{4} x + \\sin^{4} x}{\\sin^{4} x + \\cos^{4} x} dx"
+      ],
+      "sympy_available": true
+    },
+    "step_order": {
+      "score": 40.84,
+      "coverage": 0.4211,
+      "order_score": 0.3,
+      "completeness": 0.6,
+      "schema_steps": 20,
+      "student_steps": 12,
+      "lcs_length": 6,
+      "missing_at_positions": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        14
+      ]
+    },
+    "llm_judge": {
+      "score": 100.0,
+      "dimensions": {
+        "formulas": {
+          "score": 25,
+          "max": 25,
+          "errors": [],
+          "notes": "The student provides all necessary formulas including the initial integral, the property of definite integrals, the transformed integral, and the final result. All match the schema perfectly."
+        },
+        "steps": {
+          "score": 35,
+          "max": 35,
+          "errors": [],
+          "notes": "The derivation steps are logical and complete. The student correctly applies the property, simplifies the expression, sums the two versions of the integral (I + I = 2I), and evaluates the resulting integral of 1. Even with some truncated text in the provided strings, the sequence and the 'Formulas' list confirm full accuracy."
+        },
+        "theorems": {
+          "score": 20,
+          "max": 20,
+          "errors": [],
+          "notes": "The student correctly identifies and applies the property \u222b[0 to a] f(x) dx = \u222b[0 to a] f(a-x) dx and the trigonometric identity sin(\u03c0/2 - x) = cos(x)."
+        },
+        "variables": {
+          "score": 10,
+          "max": 10,
+          "errors": [],
+          "notes": "Variables I and x are used correctly, and integration limits are maintained accurately throughout."
+        },
+        "concepts": {
+          "score": 10,
+          "max": 10,
+          "errors": [],
+          "notes": "The student demonstrates a clear understanding of the 'adding integrals' technique used to solve this specific class of definite integrals."
+        }
+      },
+      "correct_steps": [
+        "Step 1: Defined the integral I correctly.",
+        "Step 2: Applied the property f(a-x) correctly.",
+        "Step 3: Simplified sin^4(\u03c0/2 - x) to cos^4(x) correctly.",
+        "Step 4: Added the two integrals to get 2I = \u222b 1 dx.",
+        "Step 5: Evaluated the integral and solved for I to get \u03c0/4."
+      ],
+      "wrong_steps": [],
+      "missing": [],
+      "overall_feedback": "Excellent work. The student followed the standard method perfectly, documented the property used, and arrived at the correct final answer. Notation and logical flow are both sound."
+    }
+  },
+  "feedback": [
+    "Partial credit. Key steps or formulas are missing or wrong.",
+    "Missing formulas: ['\\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\sin^{4} x}{\\\\sin^{4} x + \\\\cos^{4} x} dx', '\\\\Rightarrow \\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\cos^{4} x}{\\\\sin^{4} x + \\\\cos^{4} x} dx', 'I = \\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\cos^{4} x}{\\\\cos^{4} x + \\\\sin^{4} x} dx']",
+    "Incorrect/extra formulas written: ['\\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\sin^4 x}{\\\\sin^4 x + \\\\cos^4 x} dx', '\\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\sin^4 x}{\\\\sin^4 x + \\\\cos^4 x} dx \\\\dots(i)']",
+    "These schema formulas could not be matched symbolically: ['\\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\sin^{4} x}{\\\\sin^{4} x + \\\\cos^{4} x} dx', '= \\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\sin^{4} \\\\left(\\\\frac{\\\\pi}{2} - x\\\\right)}{\\\\sin^{4} \\\\left(\\\\frac{\\\\pi}{2} - x\\\\right) + \\\\cos^{4} \\\\left(\\\\frac{\\\\pi}{2} - x\\\\right)} dx', 'I = \\\\int_{0}^{\\\\pi/2} \\\\frac{\\\\cos^{4} x}{\\\\cos^{4} x + \\\\sin^{4} x} dx']",
+    "Steps missing at positions: [1, 3, 5, 7, 9]",
+    "Derivation steps are present but in wrong order."
+  ],
+  "correct_steps": [
+    "Step 1: Defined the integral I correctly.",
+    "Step 2: Applied the property f(a-x) correctly.",
+    "Step 3: Simplified sin^4(\u03c0/2 - x) to cos^4(x) correctly.",
+    "Step 4: Added the two integrals to get 2I = \u222b 1 dx.",
+    "Step 5: Evaluated the integral and solved for I to get \u03c0/4."
+  ],
+  "wrong_steps": [],
+  "llm_feedback": "Excellent work. The student followed the standard method perfectly, documented the property used, and arrived at the correct final answer. Notation and logical flow are both sound."
+}

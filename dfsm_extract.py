@@ -465,6 +465,11 @@ def extract_dfa(image_path: str, output_image: str = "dfa_final_output.png") -> 
     json_path = output_image.replace(".png", ".json")
     with open(json_path, "w") as f:
         json.dump(final_dfa, f, indent=2)
+    
+    out = f"dfsm_extract.json"
+    with open(out,'w') as f:
+        json.dump(final_dfa,f,indent=2)
+
     print(f"\n[DONE] DFA JSON saved")
 
     return final_dfa

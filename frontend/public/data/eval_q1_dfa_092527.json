@@ -1,0 +1,112 @@
+{
+  "final_score": 84.49,
+  "question_type": "diagram+text",
+  "weights": {
+    "exact": 0.2,
+    "semantic": 0.25,
+    "graph": 0.25,
+    "llm": 0.3
+  },
+  "layer_scores": {
+    "exact_match": 89.17,
+    "semantic": 99.82,
+    "graph_structure": 60.0,
+    "llm_judge": 89.0
+  },
+  "layer_details": {
+    "exact_match": {
+      "score": 89.17,
+      "node_jaccard": 1.0,
+      "edge_jaccard": 0.8333,
+      "missing_nodes": [],
+      "extra_nodes": [],
+      "missing_edges": [
+        [
+          "q1",
+          "TRANSITIONS_ON",
+          "q4"
+        ]
+      ],
+      "wrong_edges": [
+        [
+          "q1",
+          "TRANSITIONS_ON",
+          "q5"
+        ]
+      ]
+    },
+    "semantic": {
+      "score": 99.82,
+      "node_similarity": 1.0,
+      "edge_similarity": 0.9964,
+      "type_similarity": 1.0
+    },
+    "graph_structure": {
+      "score": 60.0,
+      "wl_kernel": 0.0,
+      "ged_score": 1.0,
+      "subgraph_coverage": 1.0
+    },
+    "llm_judge": {
+      "score": 89.0,
+      "dimensions": {
+        "entities": {
+          "score": 20,
+          "max": 20,
+          "errors": [],
+          "notes": "All 6 states (q0, q1, q2, q3, q4, q5) are correctly identified with their labels and `State` type, matching the schema perfectly."
+        },
+        "start_final": {
+          "score": 17,
+          "max": 20,
+          "errors": [
+            "State 'q4' is incorrectly marked as not a final state."
+          ],
+          "notes": "The start state `q0` is correctly identified. However, the student failed to mark `q4` as a final state, missing one out of three correct final states."
+        },
+        "transitions": {
+          "score": 32,
+          "max": 40,
+          "errors": [
+            "Transition from 'q1' to 'q5' is incorrect; it should be 'q1' to 'q4'."
+          ],
+          "notes": "10 out of 11 transitions are correctly identified. The transition originating from `q1` is incorrectly directed to `q5` instead of `q4`. This is a significant error as it alters the accepted language of the automaton, leading to a heavy penalty."
+        },
+        "concepts": {
+          "score": 20,
+          "max": 20,
+          "errors": [],
+          "notes": "The student has correctly used all specified predicates (`is_final`, `is_start`, `type`) and the relation (`TRANSITIONS_ON`) as defined in the schema. This demonstrates a strong conceptual understanding of how to represent the components and relationships of a finite automaton in a knowledge graph."
+        }
+      },
+      "overall_feedback": "The student provided a largely accurate representation of the finite automaton. Most states, their properties, and transitions are correctly identified. However, there is a critical error in failing to mark one final state and an incorrect target for one transition, which significantly impacts the machine's behavior.",
+      "strengths": [
+        "All states are correctly identified with their labels and types.",
+        "The start state is correctly identified.",
+        "Most final states are correctly identified.",
+        "The majority of transitions (10 out of 11) are accurate.",
+        "Excellent conceptual understanding of using predicates and relations to represent automata components."
+      ],
+      "weaknesses": [
+        "Failed to mark state 'q4' as a final state.",
+        "Incorrectly represented the transition from 'q1', directing it to 'q5' instead of 'q4'."
+      ]
+    }
+  },
+  "feedback": [
+    "Good attempt with some errors.",
+    "Missing relations: [['q1', 'TRANSITIONS_ON', 'q4']]",
+    "Wrong relations: [['q1', 'TRANSITIONS_ON', 'q5']]",
+    "Graph structure significantly differs from schema.",
+    "Failed to mark state 'q4' as a final state.",
+    "Incorrectly represented the transition from 'q1', directing it to 'q5' instead of 'q4'."
+  ],
+  "llm_feedback": "The student provided a largely accurate representation of the finite automaton. Most states, their properties, and transitions are correctly identified. However, there is a critical error in failing to mark one final state and an incorrect target for one transition, which significantly impacts the machine's behavior.",
+  "strengths": [
+    "All states are correctly identified with their labels and types.",
+    "The start state is correctly identified.",
+    "Most final states are correctly identified.",
+    "The majority of transitions (10 out of 11) are accurate.",
+    "Excellent conceptual understanding of using predicates and relations to represent automata components."
+  ]
+}

@@ -1,0 +1,65 @@
+.layer-scores-breakdown {
+  margin-bottom: 1.5rem;
+}
+
+.layer-scores-breakdown h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.layer-item {
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.layer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.layer-name {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 0.9rem;
+}
+
+.layer-score {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  min-width: 50px;
+  text-align: right;
+}
+
+.layer-bar {
+  height: 6px;
+  background: #ecf0f1;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.layer-progress {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+@media (max-width: 768px) {
+  .layers-list {
+    gap: 0.5rem;
+  }
+
+  .layer-item {
+    padding: 0.5rem;
+  }
+}

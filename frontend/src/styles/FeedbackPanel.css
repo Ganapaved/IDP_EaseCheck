@@ -1,0 +1,137 @@
+.feedback-panel {
+  margin-top: 1.5rem;
+  border-top: 1px solid #ecf0f1;
+  padding-top: 1rem;
+}
+
+.feedback-panel h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.feedback-section {
+  margin-bottom: 0.75rem;
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafbfc;
+}
+
+.section-header {
+  width: 100%;
+  padding: 1rem;
+  background: #f8f9fa;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.section-header:hover {
+  background: #ecf0f1;
+}
+
+.section-title {
+  font-weight: 600;
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+  color: #95a5a6;
+}
+
+.section-content {
+  padding: 1rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.section-content p {
+  color: #34495e;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.section-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.section-content li {
+  padding: 0.5rem 0;
+  color: #34495e;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.check-mark::before {
+  content: '✓ ';
+  color: #27ae60;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.cross-mark::before {
+  content: '✕ ';
+  color: #e74c3c;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.feedback-section.success .section-header {
+  background: #d4edda;
+  border-left: 4px solid #27ae60;
+}
+
+.feedback-section.success .section-header:hover {
+  background: #c3e6cb;
+}
+
+.feedback-section.error .section-header {
+  background: #f8d7da;
+  border-left: 4px solid #e74c3c;
+}
+
+.feedback-section.error .section-header:hover {
+  background: #f5c6cb;
+}
+
+.feedback-section.info .section-header {
+  background: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+}
+
+.feedback-section.info .section-header:hover {
+  background: #bee5eb;
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .section-content {
+    padding: 0.75rem;
+  }
+
+  .section-content li {
+    font-size: 0.9rem;
+  }
+}
